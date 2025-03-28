@@ -1,0 +1,137 @@
+* {
+  background-color: aliceblue;
+  margin: 0;
+  padding: 0;
+  line-height: 1.21;
+  box-sizing: border-box;
+  font-family: "Ubuntu";
+}
+
+.weekly_account_con h2:nth-of-type(1) {
+  text-align: center;
+}
+
+.weekly_input_con {
+  border: 2px solid grey;
+  max-width: 550px;
+  padding: 1rem;
+  margin-inline: auto;
+  margin-top: 2rem;
+}
+
+.weekly_input_con select,
+.weekly_input_con button {
+  display: block;
+}
+
+.worker_input h2:nth-of-type(1) {
+  text-align: center;
+}
+
+.change_add_worker_details_container {
+  margin-inline: auto;
+  margin-top: 2.3rem;
+}
+
+.button_container {
+  margin-inline: auto;
+  text-align: center;
+  margin-bottom: 13px;
+}
+
+.worker_input_container {
+  border: 2px solid grey;
+  max-width: 550px;
+  padding: 1rem;
+  margin-inline: auto;
+  margin-top: 1.1rem;
+}
+
+.weekly_overview_con {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 10px;
+}
+
+.weekly_table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
+
+.weekly_table caption {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.weekly_table th,
+.weekly_table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.weekly_table th {
+  background-color: hsl(0, 0%, 90%);
+  font-weight: bold;
+}
+
+.weekly_table td {
+  background-color: hsl(0, 0%, 96%);
+  font-weight: bold;
+}
+
+.weekly_table tbody tr:nth-child(even) {
+  background-color: hsl(0, 0%, 98%);
+}
+
+.worker_details_container {
+  padding: 1%;
+}
+
+.worker_details_table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
+
+.worker_details_table table {
+  margin-inline: auto;
+}
+
+.worker_details_table caption {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.worker_details_table th,
+.worker_details_table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.worker_details_table th {
+  background-color: hsl(0, 0%, 90%);
+  font-weight: bold;
+}
+
+.worker_details_table td {
+  background-color: hsl(0, 0%, 96%);
+  font-weight: bold;
+}
+
+.worker_details_table tbody tr:nth-child(even) {
+  background-color: hsl(0, 0%, 98%);
+}
+
+.worker-input-title,
+.worker_input_container {
+  display: none;
+}
+
+.visible {
+  display: block;
+}

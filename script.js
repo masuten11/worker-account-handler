@@ -1,299 +1,513 @@
-// Selecting HTML elements
-const workerInpContainer = document.querySelector(".worker_input_container");
-const weeklyTable = document.querySelector(".weekly_table");
-const selectElement = document.querySelector("#inputType");
-const weeklyTbody = document.querySelector("#weekly-tbody");
-const doneButt = document.querySelector("#done");
+// Cache frequently used DOM elements
+const elements = {
+  // Worker details section
+  workerTableBody: document.querySelector(".worker_table_body"),
+  addWorkerBtn: document.querySelector("#add-worker"),
+  editWorkerBtn: document.querySelector("#edit-worker"),
+  workerInputTitle: document.querySelector(".worker-input-title"),
+  workerInputContainer: document.querySelector(".worker_input_container"),
 
+  // Worker input form
+  fullNameInput: document.querySelector("#full-name"),
+  joinedDateInput: document.querySelector("#joined"),
+  addressInput: document.querySelector("#adress"),
+  bkashInput: document.querySelector("#bkash"),
+  currDueInput: document.querySelector("#curr-due"),
+  continueBtn: document.querySelector("#continue"),
 
-// Adding Event Listener to the #edit-worker & #add-worker Buttons
-//
-const addWorkerButt = document.querySelector("#add-worker");
-const editWorkerButt = document.querySelector("#edit-worker");
-const workerInpTitle = document.querySelector(".worker-input-title");
+  // Weekly account section
+  weeklyTable: document.querySelector(".weekly_table"),
+  weeklyTbody: document.querySelector("#weekly-tbody"),
+  dayRadios: document.querySelectorAll('input[name="Day"]'),
+  workerSelect: document.querySelector("#Worker"),
+  inputTypeSelect: document.querySelector("#inputType"),
+  infoRadios: document.querySelectorAll('input[name="Info"]'),
+  dataInput: document.querySelector("#data"),
+  doneBtn: document.querySelector("#done")
+};
 
-// Hidding #curr-due and Unhidding workerInpts
-addWorkerButt.addEventListener("click", () => {
-  document.querySelector("#curr-due").style.setProperty("display", "none");
-  document.querySelector(`label[for="curr-due"]`).style.setProperty("display", "none");
+// Initialize the application
+function init() {
+  // Set up event listeners
+  setupEventListeners();
 
-  workerInpTitle.classList.toggle("visible");
-  workerInpContainer.classList.toggle("visible");
-  if (workerInpContainer.classList.contains("edit")) workerInpContainer.classList.remove("edit");
-  workerInpContainer.classList.toggle("add");
-});
+  // Update dates in the weekly table
+  updateDates();
 
-// unhidding #curr-due workerInpts
-editWorkerButt.addEventListener("click", () => {
-  document.querySelector("#curr-due").style.setProperty("display", "block");
-  document.querySelector(`label[for="curr-due"]`).style.setProperty("display", "block");
-
-  workerInpTitle.classList.toggle("visible");
-  workerInpContainer.classList.toggle("visible");
-  if (workerInpContainer.classList.contains("add")) workerInpContainer.classList.remove("add");
-  workerInpContainer.classList.toggle("edit");
-});
-
-
-// Function to Update Data After Adding or Editing Workers
-//
-const workerTableBody = document.querySelector(".worker_table_body");
-const workerName = document.querySelector("#full-name");
-const joinedDate = document.querySelector("#joined");
-const workerAdress = document.querySelector("#bkash");
-const bkashNum = document.querySelector("#bkash");
-try {
-  const currDue = document.querySelector("#curr-due");
-} catch (error) { console.error(error) };
-
-function addNewWorker() {
-  // Validating Conditions to Continue
-  if (workerInpContainer.classList.contains("visible") && workerInpContainer.classList.contains("add") & workerName.value.trim() !== "" && workerAdress.value.trim() !== "" && bkashNum.value.trim() !== "") {
-    // Creating New Rows and Cells for the Workers Table
-    let newRow = document.createElement("tr");
-    for (let i = 0; i < 5; i++) {
-      const newCell = document.createElement("td");
-      newRow.appendChild(newCell);
-    }
-    // Adding Textcontents to the Each Cell
-    newRow.cells[0].textContent = workerName.value.trim();
-    newRow.cells[1].textContent = joinedDate.value.split("-")[0];
-    newRow.cells[2].textContent = workerAdress.value.trim();
-    newRow.cells[3].textContent = bkashNum.value.trim();
-    newRow.cells[4].textContent = 0;
-
-    // Appending the row on the worker details table
-    workerTableBody.appendChild(newRow);
-    newRow.setAttribute("id", workerName.value.trim().split(" "));
-
-    // Creating New Rows and Cells for the Weekly Table
-    newRow = document.createElement("tr");
-    for (let i = 0; i < 15; i++) {
-      const newCell = document.createElement("td");
-      newRow.appendChild(newCell);
-    }
-
-    // Adding Textcontents to the Each Cell
-    newRow.cells[0].textContent = Number(weeklyTbody.lastElementChild.cells[0].textContent) + 1;
-    newRow.cells[1].textContent = workerName.value.trim();
-    newRow.cells[2].textContent = "✖";
-    newRow.cells[3].textContent = "✖";
-    newRow.cells[4].textContent = "✖";
-    newRow.cells[5].textContent = "✖";
-    newRow.cells[6].textContent = "✖";
-    newRow.cells[7].textContent = "✖";
-    newRow.cells[8].textContent = "✖";
-    newRow.cells[9].textContent = 0;
-    newRow.cells[10].textContent = 0;
-    newRow.cells[11].textContent = 0;
-    newRow.cells[12].textContent = 0;
-    newRow.cells[13].textContent = 0;
-    newRow.cells[14].textContent = 0;
-    newRow.cells[15].textContent = 0;
-
-    // Appending the row on the worker details table
-    weeklyTbody.appendChild(newRow);
-    newRow.setAttribute("id", workerName.value.trim().split(" "));
-
-
-
-  } else alert("Bad Request!");
+  // Add default workers to select dropdown
+  populateWorkerSelect();
 }
 
+// Set up all event listeners
+function setupEventListeners() {
+  // Worker buttons
+  elements.addWorkerBtn.addEventListener("click", toggleAddWorkerForm);
+  elements.editWorkerBtn.addEventListener("click", toggleEditWorkerForm);
+  elements.continueBtn.addEventListener("click", handleWorkerFormSubmit);
 
+  // Weekly account buttons
+  elements.doneBtn.addEventListener("click", handleWeeklyDataUpdate);
+  elements.inputTypeSelect.addEventListener("change", handleInputTypeChange);
 
+  // Set today's day as checked by default
+  const today = new Date().getDay();
+  elements.dayRadios[today].checked = true;
+}
 
-// Function to Add Dates on the Table
+// Populate worker select dropdown with default workers
+function populateWorkerSelect() {
+  const defaultWorkers = [
+    { id: "Rafiqul", name: "Rafiqul Islam" },
+    { id: "Hasan", name: "Hasan Ali" },
+    { id: "Tarek", name: "Tarek Zia" },
+    { id: "Riad", name: "Riad Sheikh" }
+  ];
+
+  defaultWorkers.forEach(worker => {
+    const option = document.createElement("option");
+    option.value = worker.id;
+    option.textContent = worker.name;
+    elements.workerSelect.appendChild(option);
+  });
+}
+
+// Toggle add worker form visibility
+function toggleAddWorkerForm() {
+  // Hide current due field for new workers
+  elements.currDueInput.style.display = "none";
+  document.querySelector('label[for="curr-due"]').style.display = "none";
+
+  // Remove any existing worker select dropdown
+  const existingSelect = document.querySelector('#workers-select');
+  if (existingSelect) {
+    existingSelect.remove();
+    document.querySelector('label[for="workers-select"]')?.remove();
+  }
+
+  // Toggle visibility
+  elements.workerInputTitle.classList.toggle("visible");
+  elements.workerInputContainer.classList.toggle("visible");
+
+  // Clear any edit mode classes and set add mode
+  elements.workerInputContainer.classList.remove("edit");
+  elements.workerInputContainer.classList.add("add");
+
+  // Reset form
+  resetWorkerForm();
+}
+
+// Toggle edit worker form visibility
+function toggleEditWorkerForm() {
+  // Show current due field for editing
+  elements.currDueInput.style.display = "block";
+  document.querySelector('label[for="curr-due"]').style.display = "block";
+
+  // Create worker select dropdown if it doesn't exist
+  if (!document.querySelector('#workers-select')) {
+    createWorkerSelectDropdown();
+  }
+
+  // Toggle visibility
+  elements.workerInputTitle.classList.toggle("visible");
+  elements.workerInputContainer.classList.toggle("visible");
+
+  // Clear any add mode classes and set edit mode
+  elements.workerInputContainer.classList.remove("add");
+  elements.workerInputContainer.classList.add("edit");
+
+  // Reset form
+  resetWorkerForm();
+}
+
+// Create dropdown to select worker for editing
+function createWorkerSelectDropdown() {
+  const selectElement = document.createElement("select");
+  selectElement.id = "workers-select";
+  selectElement.name = "workers";
+  selectElement.required = true;
+
+  // Get all worker names from the table
+  const workers = Array.from(elements.workerTableBody.rows).map(row => ({
+    id: row.id,
+    name: row.cells[0].textContent.trim()
+  }));
+
+  // Add options for each worker
+  workers.forEach(worker => {
+    const option = document.createElement("option");
+    option.value = worker.id;
+    option.textContent = worker.name;
+    selectElement.appendChild(option);
+  });
+
+  // Create label
+  const label = document.createElement("label");
+  label.textContent = "Select Worker to Edit:";
+  label.setAttribute("for", "workers-select");
+
+  // Insert before the first form field
+  elements.fullNameInput.before(selectElement);
+  selectElement.before(label);
+}
+
+// Reset worker form fields
+function resetWorkerForm() {
+  elements.fullNameInput.value = "";
+  elements.joinedDateInput.value = "";
+  elements.addressInput.value = "";
+  elements.bkashInput.value = "";
+  elements.currDueInput.value = "";
+}
+
+// Handle worker form submission (add/edit)
+function handleWorkerFormSubmit() {
+  // Validate form inputs
+  if (!validateWorkerForm()) {
+    return;
+  }
+
+  if (elements.workerInputContainer.classList.contains("add")) {
+    addNewWorker();
+  } else {
+    editExistingWorker();
+  }
+
+  // Reset form
+  resetWorkerForm();
+  elements.workerInputContainer.classList.remove("visible");
+  elements.workerInputTitle.classList.remove("visible");
+}
+
+// Validate worker form inputs
+function validateWorkerForm() {
+  // Basic validation
+  if (!elements.fullNameInput.value.trim()) {
+    alert("Please enter worker's name");
+    return false;
+  }
+
+  if (!elements.joinedDateInput.value) {
+    alert("Please select join date");
+    return false;
+  }
+
+  if (!elements.addressInput.value.trim()) {
+    alert("Please enter worker's address");
+    return false;
+  }
+
+  // Validate Bkash number
+  if (!isValidBkashNumber(elements.bkashInput.value.trim())) {
+    alert("Please enter a valid Bkash number (11 digits starting with 01)");
+    return false;
+  }
+
+  // For edit mode, validate current due
+  if (elements.workerInputContainer.classList.contains("edit") &&
+    !elements.currDueInput.value.trim()) {
+    alert("Please enter current due amount");
+    return false;
+  }
+
+  return true;
+}
+
+// Check if Bkash number is valid
+function isValidBkashNumber(number) {
+  return /^01[3-9]\d{8}$/.test(number);
+}
+
+// Add a new worker to both tables
+function addNewWorker() {
+  const workerId = elements.fullNameInput.value.trim().replace(/\s+/g, '-').toLowerCase();
+  const workerName = elements.fullNameInput.value.trim();
+  const joinYear = new Date(elements.joinedDateInput.value).getFullYear();
+
+  // Add to worker details table
+  const newWorkerRow = elements.workerTableBody.insertRow();
+  newWorkerRow.id = workerId;
+
+  newWorkerRow.innerHTML = `
+    <td>${workerName}</td>
+    <td>${joinYear}-Present</td>
+    <td>${elements.addressInput.value.trim()}</td>
+    <td>${elements.bkashInput.value.trim()}</td>
+    <td>0</td>
+  `;
+
+  // Add to weekly table
+  const newWeeklyRow = elements.weeklyTbody.insertRow();
+  newWeeklyRow.id = workerId;
+
+  const rowNumber = elements.weeklyTbody.rows.length;
+  newWeeklyRow.innerHTML = `
+    <td>${rowNumber}</td>
+    <td>${workerName}</td>
+    <td>✖</td>
+    <td>✖</td>
+    <td>✖</td>
+    <td>✖</td>
+    <td>✖</td>
+    <td>✖</td>
+    <td>✖</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+    <td>0</td>
+  `;
+
+  // Add to worker select dropdown
+  const option = document.createElement("option");
+  option.value = workerId;
+  option.textContent = workerName;
+  elements.workerSelect.appendChild(option);
+
+  alert("Worker added successfully!");
+}
+
+// Edit existing worker details
+function editExistingWorker() {
+  const workerSelect = document.querySelector('#workers-select');
+  if (!workerSelect) return;
+
+  const workerId = workerSelect.value;
+  const workerName = elements.fullNameInput.value.trim();
+  const joinYear = new Date(elements.joinedDateInput.value).getFullYear();
+
+  // Update worker details table
+  const workerRow = elements.workerTableBody.querySelector(`#${workerId}`);
+  if (workerRow) {
+    workerRow.cells[0].textContent = workerName;
+    workerRow.cells[1].textContent = `${joinYear}-Present`;
+    workerRow.cells[2].textContent = elements.addressInput.value.trim();
+    workerRow.cells[3].textContent = elements.bkashInput.value.trim();
+    workerRow.cells[4].textContent = elements.currDueInput.value.trim();
+  }
+
+  // Update weekly table
+  const weeklyRow = elements.weeklyTbody.querySelector(`#${workerId}`);
+  if (weeklyRow) {
+    weeklyRow.cells[1].textContent = workerName;
+  }
+
+  // Update worker select dropdown
+  const workerOption = elements.workerSelect.querySelector(`option[value="${workerId}"]`);
+  if (workerOption) {
+    workerOption.textContent = workerName;
+  }
+
+  alert("Worker details updated successfully!");
+}
+
+// Handle weekly data updates
+function handleWeeklyDataUpdate() {
+  // Validate inputs
+  if (!validateWeeklyInputs()) {
+    return;
+  }
+
+  // Update the data
+  updateWorkerData();
+
+  // Recalculate totals
+  updateAllWorkerTotals();
+
+  // Reset form
+  elements.dataInput.value = "";
+}
+
+// Validate weekly inputs
+function validateWeeklyInputs() {
+  const selectedDay = document.querySelector('input[name="Day"]:checked');
+  const selectedInfo = document.querySelector('input[name="Info"]:checked');
+
+  if (!selectedDay) {
+    alert("Please select a day");
+    return false;
+  }
+
+  if (!selectedInfo) {
+    alert("Please select information to update");
+    return false;
+  }
+
+  if (!elements.dataInput.value.trim()) {
+    alert("Please enter a value");
+    return false;
+  }
+
+  // Validate numeric input
+  if (isNaN(Number(elements.dataInput.value.trim()))) {
+    alert("Please enter a valid number");
+    return false;
+  }
+
+  return true;
+}
+
+// Update worker data in weekly table
+function updateWorkerData() {
+  const selectedWorker = elements.workerSelect.value;
+  const selectedDay = document.querySelector('input[name="Day"]:checked').value;
+  const operation = elements.inputTypeSelect.value;
+  const dataToOperate = document.querySelector('input[name="Info"]:checked').value;
+  const dataValue = elements.dataInput.value.trim();
+
+  // Find the worker's row
+  const workerRow = elements.weeklyTbody.querySelector(`#${selectedWorker}`);
+  if (!workerRow) return;
+
+  // Handle new data operation
+  if (operation === "newData") {
+    switch (dataToOperate) {
+      case "produced-on-day":
+        const dayIndex = Array.from(elements.weeklyTable.rows[1].cells).findIndex(
+          cell => cell.id === selectedDay
+        );
+        workerRow.cells[dayIndex].textContent =
+          workerRow.cells[dayIndex].textContent === "✖" ?
+            dataValue :
+            (Number(workerRow.cells[dayIndex].textContent) + Number(dataValue)).toString();
+        break;
+
+      case "meal-expense":
+        workerRow.cells[12].textContent =
+          workerRow.cells[12].textContent === "0" ?
+            dataValue :
+            (Number(workerRow.cells[12].textContent) + Number(dataValue)).toString();
+        break;
+
+      case "worker-deposite":
+        workerRow.cells[13].textContent =
+          workerRow.cells[13].textContent === "0" ?
+            dataValue :
+            (Number(workerRow.cells[13].textContent) + Number(dataValue)).toString();
+        break;
+
+      case "owner-advance":
+        workerRow.cells[14].textContent =
+          workerRow.cells[14].textContent === "0" ?
+            dataValue :
+            (Number(workerRow.cells[14].textContent) + Number(dataValue)).toString();
+        break;
+    }
+  }
+  // Handle edit data operation
+  else if (operation === "editData") {
+    switch (dataToOperate) {
+      case "produced-on-day":
+        const dayIndex = Array.from(elements.weeklyTable.rows[1].cells).findIndex(
+          cell => cell.id === selectedDay
+        );
+        workerRow.cells[dayIndex].textContent = dataValue;
+        break;
+
+      case "meal-expense":
+        workerRow.cells[12].textContent = dataValue;
+        break;
+
+      case "worker-deposite":
+        workerRow.cells[13].textContent = dataValue;
+        break;
+
+      case "owner-advance":
+        workerRow.cells[14].textContent = dataValue;
+        break;
+
+      case "total-work":
+        workerRow.cells[9].textContent = dataValue;
+        break;
+
+      case "total-bill":
+        workerRow.cells[11].textContent = dataValue;
+        break;
+    }
+  }
+
+  // Always allow work rate update
+  if (dataToOperate === "work-rate") {
+    workerRow.cells[10].textContent = dataValue;
+  }
+}
+
+// Handle input type change (enable/disable total fields)
+function handleInputTypeChange() {
+  const isNewData = elements.inputTypeSelect.value === "newData";
+
+  // Find total work and total bill radio buttons
+  const totalWorkRadio = document.querySelector('#total-work');
+  const totalBillRadio = document.querySelector('#total-bill');
+
+  // Disable/enable based on selection
+  totalWorkRadio.disabled = isNewData;
+  totalBillRadio.disabled = isNewData;
+
+  // Visual feedback
+  const opacity = isNewData ? "0.5" : "1";
+  totalWorkRadio.style.opacity = opacity;
+  totalBillRadio.style.opacity = opacity;
+  document.querySelector('label[for="total-work"]').style.opacity = opacity;
+  document.querySelector('label[for="total-bill"]').style.opacity = opacity;
+
+  // Uncheck if disabled
+  if (isNewData) {
+    totalWorkRadio.checked = false;
+    totalBillRadio.checked = false;
+  }
+}
+
+// Calculate total work and bill for a worker
+function calculateWorkerTotals(rowIndex) {
+  const row = elements.weeklyTbody.rows[rowIndex];
+  if (!row) return;
+
+  // Calculate total work (sum of daily production)
+  let totalWork = 0;
+  for (let i = 2; i < 9; i++) {
+    const dayValue = row.cells[i].textContent;
+    if (dayValue !== "✖" && !isNaN(dayValue)) {
+      totalWork += Number(dayValue);
+    }
+  }
+  row.cells[9].textContent = totalWork.toString();
+
+  // Calculate total bill (total work * work rate)
+  const workRate = Number(row.cells[10].textContent);
+  if (workRate > 0) {
+    const totalBill = totalWork * workRate;
+    row.cells[11].textContent = totalBill.toFixed(0);
+  }
+}
+
+// Update totals for all workers
+function updateAllWorkerTotals() {
+  for (let i = 0; i < elements.weeklyTbody.rows.length; i++) {
+    calculateWorkerTotals(i);
+  }
+}
+
+// Update dates in the weekly table
 function updateDates() {
   const today = new Date();
-
-  if (!weeklyTable || !weeklyTable.rows[0]) return;
-  // Updating the Current Year
-  weeklyTable.rows[0].cells[14].textContent = today.getFullYear();
-
-  // Updating the Current Month
-  const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  weeklyTable.rows[0].cells[13].textContent = monthNames[today.getMonth()];
-
-  // Updating Dates and Day of the Current Week
   const firstDayOfWeek = new Date(today);
-  firstDayOfWeek.setDate(today.getDate() - today.getDay());  // assuming Sunday as the first day of the week
+  firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Sunday as first day
 
-  // For Loop For Iteration Through The Week 
-  const date = new Date(firstDayOfWeek);
+  // Update year and month
+  elements.weeklyTable.rows[0].cells[14].textContent = today.getFullYear();
+
+  const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  elements.weeklyTable.rows[0].cells[13].textContent = monthNames[today.getMonth()];
+
+  // Update dates for each day of the week
   for (let i = 0; i < 7; i++) {
-    const weeklyDateCell = weeklyTable.rows[0].cells[2 + i];
+    const date = new Date(firstDayOfWeek);
     date.setDate(firstDayOfWeek.getDate() + i);
-
-    // Formatted as MM-DD and Updating Cells
-    weeklyDateCell.textContent = date.toISOString().split("T")[0].slice((date.toISOString().split("T")[0]).indexOf("-") + 1);
-  }
-
-  // Checking up the Day input[type="radio"] by default
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  document.querySelector(`input[id="${daysOfWeek[today.getDay()]}"]`).checked = true;
-}
-
-// Disabling #totalBill & #totalWork Input Based on Select Element
-selectElement.addEventListener("change", function () {
-  const selectedValue = this.value;
-  let totalBill = document.querySelector("#total-bill");
-  let totalBillLabel = document.querySelector(`label[for="total-bill"]`);
-  let totalWork = document.querySelector("#total-work");
-  let totalWorkLabel = document.querySelector(`label[for="total-work"]`);
-
-  if (selectedValue === "newData") {
-    totalBill.disabled = true;
-    totalBill.checked = false;
-    totalBill.style.setProperty("opacity", "0.7");
-    totalBillLabel.style.setProperty("opacity", "0.7");
-    totalWork.disabled = true;
-    totalWork.checked = false;
-    totalWork.style.setProperty("opacity", "0.7");
-    totalWorkLabel.style.setProperty("opacity", "0.7");
-  } else {
-    totalBill.disabled = false;
-    totalBill.style.setProperty("opacity", "1");
-    totalBillLabel.style.setProperty("opacity", "1");
-    totalWork.disabled = false;
-    totalWork.style.setProperty("opacity", "1");
-    totalWorkLabel.style.setProperty("opacity", "1");
-  }
-});
-
-// Function to Update Worker's Data with ensuring Validation of the Inputs
-function updateWorkerData() {
-  const inputInfo = document.querySelector(`input[name="Info"]:checked`);
-  const dataInput = document.querySelector(`#data`);
-
-  // Validating User Input
-  if (!inputInfo || dataInput.value.trim() === "") {
-    alert("Please provide the necessary information...");
-    return;
-  }
-
-  // Collecting Data From the User Each Provided Input
-  const selectedWorker = document.querySelector(`#Worker`).value;
-  const selectedDay = document.querySelector(`input[name="Day"]:checked`).value;
-  const operation = selectElement.value;
-  const dataToOperate = inputInfo.value;
-  const dataToInput = dataInput.value.trim();
-
-  // Finding Row Dedicated for the Selected Worker
-  const selectedRow = weeklyTbody.querySelector(`tr[id="${selectedWorker}"]`);
-
-  // Operating If "newData"
-  if (operation === "newData") {
-    // Checking if Operation Value is #produced-on-day and Updating Table Accordingly
-    if (dataToOperate === "produced-on-day") {
-      const productionIndex = weeklyTable.querySelector(`th[id="${selectedDay}"]`).cellIndex;
-      selectedRow.cells[productionIndex].textContent =
-        isNaN(Number(selectedRow.cells[productionIndex].textContent)) ?
-          dataToInput :
-          (Number(selectedRow.cells[productionIndex].textContent) + Number(dataToInput)).toString();
-    }
-    // Similar logic for other operations
-    else if (dataToOperate === "meal-expense") {
-      selectedRow.cells[12].textContent =
-        selectedRow.cells[12].textContent === "" ?
-          dataToInput :
-          (Number(selectedRow.cells[12].textContent) + Number(dataToInput)).toString();
-    }
-    else if (dataToOperate === "worker-deposite") {
-      selectedRow.cells[13].textContent =
-        selectedRow.cells[13].textContent === "" ?
-          dataToInput :
-          (Number(selectedRow.cells[13].textContent) + Number(dataToInput)).toString();
-    }
-    else if (dataToOperate === "owner-advance") {
-      selectedRow.cells[14].textContent =
-        selectedRow.cells[14].textContent === "" ?
-          dataToInput :
-          (Number(selectedRow.cells[14].textContent) + Number(dataToInput)).toString();
-    }
-  }
-
-  // Operating If "editData"
-  if (operation === "editData") {
-    if (dataToOperate === "produced-on-day") {
-      const productionIndex = weeklyTable.querySelector(`th[id="${selectedDay}"]`).cellIndex;
-      selectedRow.cells[productionIndex].textContent = dataToInput;
-    }
-    else if (dataToOperate === "meal-expense") {
-      selectedRow.cells[12].textContent = dataToInput;
-    }
-    else if (dataToOperate === "worker-deposite") {
-      selectedRow.cells[13].textContent = dataToInput;
-    }
-    else if (dataToOperate === "owner-advance") {
-      selectedRow.cells[14].textContent = dataToInput;
-    }
-    else if (dataToOperate === "total-work") {
-      selectedRow.cells[9].textContent = dataToInput;
-    }
-    else if (dataToOperate === "total-bill") {
-      selectedRow.cells[11].textContent = dataToInput;
-    }
-  }
-
-  // Updating Work Rate (Always possible)
-  if (dataToOperate === "work-rate") {
-    selectedRow.cells[10].textContent = dataToInput;
+    const formattedDate = date.toISOString().split("T")[0].slice(5); // MM-DD format
+    elements.weeklyTable.rows[0].cells[2 + i].textContent = formattedDate;
   }
 }
 
-
-// Function to update automated values on the weekly table (if valid)
-//
-function calTotalWorkBill(row) {
-  // Validate row input
-  if (row < 0 || row >= weeklyTbody.rows.length) {
-    console.error("Invalid row index");
-    return;
-  }
-
-  let weeklyWork = [];
-  // Collect daily work values (from Sunday to Saturday)
-  for (let i = 0; i < 7; i++) {
-    const cellContent = weeklyTbody.rows[row].cells[2 + i].textContent.trim();
-    // Only add non-empty cell values
-    if (cellContent !== "" && !isNaN(cellContent)) {
-      weeklyWork.push(Number(cellContent));
-    }
-  }
-
-  // Calculate total work
-  let totalWork = weeklyWork.length > 0
-    ? weeklyWork.reduce((sum, value) => sum + value, 0)
-    : 0;
-  // Update total work cell
-  weeklyTbody.rows[row].cells[9].textContent = totalWork.toString();
-
-  // Calculate and update total bill if work rate is available
-  const workRateCell = weeklyTbody.rows[row].cells[10];
-  if (totalWork > 0 && workRateCell.textContent.trim() !== "") {
-    const workRate = Number(workRateCell.textContent);
-    const totalBill = totalWork * workRate;
-    weeklyTbody.rows[row].cells[11].textContent = (totalBill.toFixed(0)).toString();
-  } else {
-    // Clear total bill if no work or work rate
-    weeklyTbody.rows[row].cells[11].textContent = "";
-  }
-}
-
-// Autometic Calculation for all workers
-function updateAllWorkerTotals() {
-  for (let i = 0; i < weeklyTbody.rows.length; i++) {
-    calTotalWorkBill(i);
-  }
-}
-
-
-// Adding Event Listeners
-window.addEventListener("DOMContentLoaded", updateDates);
-
-doneButt.addEventListener("click", () => {
-  updateWorkerData();
-  updateAllWorkerTotals();
-});
-
+// Initialize the application when DOM is loaded
+document.addEventListener("DOMContentLoaded", init);
