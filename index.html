@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker's Account Handler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      background-color: aliceblue;
+      margin: 0;
+      padding: 0;
+      line-height: 1.21;
+      box-sizing: border-box;
+      font-family: "Ubuntu";
+    }
+
+    .weekly_account_con h2:nth-of-type(1) {
+      text-align: center;
+    }
+
+    .weekly_input_con {
+      border: 2px solid grey;
+      max-width: 550px;
+      padding: 1rem;
+      margin-inline: auto;
+      margin-top: 2rem;
+    }
+
+    .weekly_input_con select,
+    .weekly_input_con button {
+      display: block;
+    }
+
+    .worker_input h2:nth-of-type(1) {
+      text-align: center;
+    }
+
+    .change_add_worker_details_container {
+      margin-inline: auto;
+      margin-top: 2.3rem;
+    }
+
+    .button_container {
+      margin-inline: auto;
+      text-align: center;
+      margin-bottom: 13px;
+    }
+
+    .worker_input_container {
+      border: 2px solid grey;
+      max-width: 550px;
+      padding: 1rem;
+      margin-inline: auto;
+      margin-top: 1.1rem;
+    }
+
+    .weekly_overview_con {
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 10px;
+    }
+
+    .weekly_table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+    }
+
+    .weekly_table caption {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .weekly_table th,
+    .weekly_table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .weekly_table th {
+      background-color: hsl(0, 0%, 90%);
+      font-weight: bold;
+    }
+
+    .weekly_table td {
+      background-color: hsl(0, 0%, 96%);
+      font-weight: bold;
+    }
+
+    .weekly_table tbody tr:nth-child(even) {
+      background-color: hsl(0, 0%, 98%);
+    }
+
+    .worker_details_container {
+      padding: 1%;
+    }
+
+    .worker_details_table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+    }
+
+    .worker_details_table table {
+      margin-inline: auto;
+    }
+
+    .worker_details_table caption {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .worker_details_table th,
+    .worker_details_table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .worker_details_table th {
+      background-color: hsl(0, 0%, 90%);
+      font-weight: bold;
+    }
+
+    .worker_details_table td {
+      background-color: hsl(0, 0%, 96%);
+      font-weight: bold;
+    }
+
+    .worker_details_table tbody tr:nth-child(even) {
+      background-color: hsl(0, 0%, 98%);
+    }
+
+    .worker-input-title, .worker_input_container { display: none; }
+    .visible { display: block; }
+  </style>
+
+</head>
+
+<body>
+  <div class="worker_details_container">
+    <div class="worker_details_table">
+      <table class="all_worker_table">
+        <caption>Worker Details</caption>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Working From</th>
+            <th>Adress</th>
+            <th>Bkash Number</th>
+            <th>Current Due</th>
+          </tr>
+        </thead>
+        <tbody class="worker_table_body">
+          <tr id="Rafiqul">
+            <td>Rafiqul Islam</td>
+            <td>2020-Present</td>
+            <td>Faridpur, Dhaka</td>
+            <td>01456789032</td>
+            <td>0</td>
+          </tr>
+          <tr id="Hasan">
+          <td>Hasan Ali</td>
+          <td>2019-Present</td>
+          <td>Tangail</td>
+          <td>01996789037</td>
+          <td>0</td>
+          </tr>
+          <tr id="Tarek">
+            <td>Tarek Zia</td>
+            <td>2023-2025</td>
+            <td>Shahzadazpur, Sirajgonj</td>
+            <td>01456789032</td>
+            <td>0</td>
+          </tr>
+          <tr id="Raid">
+            <td>Riad Sheikh</td>
+            <td>2022-Present</td>
+            <td>Mirpur, Dhaka</td>
+            <td>01750288177</td>
+            <td>0</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <th>Total Due</th>
+            <td>0</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="change_add_worker_details_container">
+      <div class="button_container">
+        <button id="add-worker">➕</button>
+        <button id="edit-worker">✐</button>
+      </div>
+
+      <div class="worker_input">
+        <h2 class="worker-input-title">Input To Add/Edit Worker</h2>
+        <div class="worker_input_container">
+          <label for="full-name">Worker's Name:</label> <br>
+          <input type="text" placeholder="enter the full name" name="full-name" id="full-name" maxlength="40"
+            required><br>
+
+          <label for="joined">Joined On:</label><br>
+          <input type="date" placeholder="(year-XXXX)" name="joined" id="joined" required> <br>
+
+          <label for="adress">Worker's Adress:</label><br>
+          <input type="text" name="adress" id="adress" maxlength="40" required> <br>
+
+          <label for="bkash">Worker's Bkash Number:</label> <br>
+          <input type="number" placeholder="enter an active bkash" name="bkash" id="bkash" maxlength="11" required> <br>
+
+          <label for="curr-due">Current Due:</label>
+          <input type="number" name="curr-due" id="curr-due" required> <br> <br>
+
+          <button id="continue">Continue</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="weekly_account_con">
+    <h2>Inputs To Make Changes</h2>
+    <div class="weekly_input_con">
+      <fieldset>
+        <legend>Select the Day (default today)</legend>
+        <input type="radio" name="Day" id="Sunday" value="Sunday"> <label for="Sunday">Sunday</label> <br />
+        <input type="radio" name="Day" id="Monday" value="Monday"> <label for="Monday">Monday</label> <br />
+        <input type="radio" name="Day" id="Tuesday" value="Tuesday"> <label for="Tuesday">Tuesday</label> <br />
+        <input type="radio" name="Day" id="Wednesday" value="Wednesday"> <label for="Wednesday">Wednesday</label> <br />
+        <input type="radio" name="Day" id="Thursday" value="Thursday"> <label for="Thursday">Thursday</label> <br />
+        <input type="radio" name="Day" id="Friday" value="Friday"> <label for="Friday">Friday</label> <br />
+        <input type="radio" name="Day" id="Saturday" value="Saturday"> <label for="Saturday">Saturday</label> <br />
+      </fieldset> <br />
+
+      <label for="Worker">Select the Worker:</label>
+      <select name="worker" id="Worker" required>
+        <option value="Rafiqul">Rafiqul Islam</option>
+        <option value="Hasan">Hasan Ali</option>
+        <option value="Tarek">Tarek Zia</option>
+        <option value="Riad">Riad Sheikh</option>
+      </select> <br />
+
+      <label for="inputType">Select Input Type:</label>
+      <select name="Input Type" id="inputType" required>
+        <option value="editData">Edit Data</option>
+        <option value="newData">New Data</option>
+      </select> <br />
+
+      <fieldset>
+        <legend>Select Info to Add/Edit</legend>
+        <input type="radio" name="Info" id="produced-on-day" value="produced-on-day"> <label
+          for="produced-on-day">Produced On Day</label> <br />
+        <input type="radio" name="Info" id="work-rate" value="work-rate"> <label for="work-rate">Work Rate</label>
+        <br />
+        <input type="radio" name="Info" id="meal-expense" value="meal-expense"> <label for="meal-expense">Meal
+          Expense</label> <br />
+        <input type="radio" name="Info" id="worker-deposite" value="worker-deposite"> <label
+          for="worker-deposite">Worker's Deposit</label> <br />
+        <input type="radio" name="Info" id="owner-advance" value="owner-advance"> <label for="owner-advance">Owner's
+          Advance</label> <br />
+        <input type="radio" name="Info" id="total-work" value="total-work"> <label for="total-work">Total Work</label>
+        <br />
+        <input type="radio" name="Info" id="total-bill" value="total-bill"> <label for="total-bill">Total Bill</label>
+        <br />
+      </fieldset> <br />
+
+      <input type="number" name="data" id="data" placeholder="input to make change" required> <br /> <br />
+
+      <button id="done">Done</button>
+    </div>
+
+    <div class="weekly_overview_con">
+      <table class="weekly_table">
+        <caption>Weekly Worker's Overview</caption>
+        <thead>
+          <tr id="header1">
+            <th>&nbsp;&nbsp;</th>
+            <th>&nbsp;&nbsp;</th>
+            <th>Date</th>
+            <th>Date</th>
+            <th>Date</th>
+            <th>Date</th>
+            <th>Date</th>
+            <th>Date</th>
+            <th>Date</th>
+            <th>&nbsp;&nbsp;</th>
+            <th>&nbsp;&nbsp;</th>
+            <th>&nbsp;&nbsp;</th>
+            <th>&nbsp;&nbsp;</th>
+            <th>Month</th>
+            <th>Year</th>
+          </tr>
+          <tr id="header2">
+            <th>&nbsp;&nbsp;</th>
+            <th>Worker's Name</th>
+            <th id="Sunday">Sunday</th>
+            <th id="Monday">Monday</th>
+            <th id="Tuesday">Tuesday</th>
+            <th id="Wednesday">Wednesday</th>
+            <th id="Thursday">Thursday</th>
+            <th id="Friday">Friday</th>
+            <th id="Saturday">Saturday</th>
+            <th>Total Work</th>
+            <th>Work Rate</th>
+            <th>Total Bill</th>
+            <th>Meal Expense</th>
+            <th>Worker's Deposit</th>
+            <th>Owner's Advance</th>
+          </tr>
+        </thead>
+        <tbody id="weekly-tbody">
+          <tr id="Rafiqul">
+            <td>1</td>
+            <td>Rafiqul Islam</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+          <tr id="Hasan">
+            <td>2</td>
+            <td>Hasan Ali</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+          <tr id="Tarek">
+            <td>3</td>
+            <td>Tarek Zia</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+          <tr id="Riad">
+            <td>4</td>
+            <td>Riad Sheikh</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>✖</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
