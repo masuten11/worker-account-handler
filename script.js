@@ -36,6 +36,9 @@ function init() {
 
   // Add default workers to select dropdown
   populateWorkerSelect();
+
+  // Auto Calculations
+  autoCalculate();
 }
 
 // Set up all event listeners
@@ -43,10 +46,16 @@ function setupEventListeners() {
   // Worker buttons
   elements.addWorkerBtn.addEventListener("click", toggleAddWorkerForm);
   elements.editWorkerBtn.addEventListener("click", toggleEditWorkerForm);
-  elements.continueBtn.addEventListener("click", handleWorkerFormSubmit);
+  elements.continueBtn.addEventListener("click", () => {
+    handleWorkerFormSubmit();
+    autoCalculate();
+  });
 
   // Weekly account buttons
-  elements.doneBtn.addEventListener("click", handleWeeklyDataUpdate);
+  elements.doneBtn.addEventListener("click", () => {
+    handleWeeklyDataUpdate();
+    autoCalculate();
+  });
   elements.inputTypeSelect.addEventListener("change", handleInputTypeChange);
 
   // Set today's day as checked by default
@@ -146,8 +155,10 @@ function createWorkerSelectDropdown() {
   label.setAttribute("for", "workers-select");
 
   // Insert before the first form field
-  elements.fullNameInput.before(selectElement);
+  elements.workerInputContainer.firstElementChild.before(selectElement);
   selectElement.before(label);
+  selectElement.after(document.createElement("br"));
+  label.after(document.createElement("br"));
 }
 
 // Reset worker form fields
@@ -509,5 +520,50 @@ function updateDates() {
   }
 }
 
+// Function to handle auto calculation
+function autoCalculate() {
+  Array.from(elements.weeklyTbody.rows).forEach(row => {
+    const mealExpense = Number(row.cells[12].innerText) || 0;
+    const ownersAdvance = Number(row.cells[14].innerText) || 0;
+    const currentBil = Number(row.cells[11].innerText) || 0;
+    const workersDeposite = Number(row.cells[13].innerText) || 0;
+
+    // Calculate adjusted bill
+    const adjustedBill = (currentBil - (mealExpense + ownersAdvance)) + workersDeposite;
+    row.cells[11].innerText = adjustedBill.toFixed(0);
+
+    // Update due in workerTable
+    const rowId = row.getAttribute("id");
+    const correspondingRow = elements.workerTableBody.querySelector(`tr[id="${rowId}"]`);
+    if (correspondingRow) {
+      correspondingRow.cells[4].innerText = adjustedBill.toFixed(0);
+    }
+  });
+}
+
+
+
 // Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", init);
+
+// Submit worker form on Enter key
+[elements.fullNameInput, elements.joinedDateInput, elements.addressInput,
+  elements.bkashInput, elements.currDueInput].forEach(input => {
+   input.addEventListener("keydown", function (e) {
+     if (e.key === "Enter") {
+       e.preventDefault();
+       handleWorkerFormSubmit();
+       autoCalculate();
+     }
+   });
+ });
+ 
+ // Submit weekly data on Enter key
+ elements.dataInput.addEventListener("keydown", function (e) {
+   if (e.key === "Enter") {
+     e.preventDefault();
+     handleWeeklyDataUpdate();
+     autoCalculate();
+   }
+ });
+ 
